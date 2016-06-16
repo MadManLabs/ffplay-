@@ -156,7 +156,7 @@ typedef struct Frame {
     double pts;           /* presentation timestamp for the frame */
     double duration;      /* estimated duration of the frame */
     int64_t pos;          /* byte position of the frame in the input file */
-    SDL_Overlay *bmp;
+    SDL_Overlay *bmp;  //not work in SDL 2.0
     int allocated;
     int reallocate;
     int width;
@@ -1541,7 +1541,7 @@ retry:
             lastvp = frame_queue_peek_last(&is->pictq);
             vp = frame_queue_peek(&is->pictq);
 
-            if (vp->serial != is->videoq.serial) {
+            if (vp->serial != is->videoq.serial) { //videoq is the packet queue
                 frame_queue_next(&is->pictq);
                 redisplay = 0;
                 goto retry;
@@ -2089,7 +2089,7 @@ static int audio_thread(void *arg)
         return AVERROR(ENOMEM);
 
     do {
-        if ((got_frame = decoder_decode_frame(&is->auddec, frame, NULL)) < 0)
+        if ((got_frame = decoder_decode_frame(&is->auddec, frame, NULL)) < 0)//It is guaranteed that it is an audio frame.
             goto the_end;
 
         if (got_frame) {
@@ -2920,7 +2920,7 @@ static int read_thread(void *arg)
 
     /* if seeking requested, we execute it */
     if (start_time != AV_NOPTS_VALUE) {
-        int64_t timestamp;
+        int64_t timestamp; //in unit of 10e06 s
 
         timestamp = start_time;
         /* add the stream start time */
