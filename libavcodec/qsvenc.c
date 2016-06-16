@@ -334,6 +334,11 @@ static int select_rc_mode(AVCodecContext *avctx, QSVEncContext *q)
         rc_desc = "variable bitrate (VBR)";
     }
 
+	//force CBR by James
+	rc_mode = MFX_RATECONTROL_CBR;
+	rc_desc = "constant bitrate (CBR)"; 
+	//
+
     q->param.mfx.RateControlMethod = rc_mode;
     av_log(avctx, AV_LOG_VERBOSE, "Using the %s ratecontrol method\n", rc_desc);
 
@@ -346,9 +351,12 @@ static int rc_supported(QSVEncContext *q)
     mfxStatus ret;
 
     ret = MFXVideoENCODE_Query(q->session, &q->param, &param_out);
-    if (ret < 0 ||
-        param_out.mfx.RateControlMethod != q->param.mfx.RateControlMethod)
-        return 0;
+	if (ret < 0 ||
+		param_out.mfx.RateControlMethod != q->param.mfx.RateControlMethod)
+	{
+		printf("Rate control method is changed from %d to %d\n", q->param.mfx.RateControlMethod, param_out.mfx.RateControlMethod);
+		return 0;
+	}
     return 1;
 }
 
@@ -547,8 +555,8 @@ FF_ENABLE_DEPRECATION_WARNINGS
         av_log(avctx, AV_LOG_ERROR,
                "Selected ratecontrol mode is not supported by the QSV "
                "runtime. Choose a different mode.\n");
-        return AVERROR(ENOSYS);
-    }
+		return 0;// AVERROR(ENOSYS);
+    }  // use a default rate control method for old PC.
 
     return 0;
 }
@@ -761,7 +769,7 @@ int ff_qsv_enc_init(AVCodecContext *avctx, QSVEncContext *q)
     if (MFX_WRN_PARTIAL_ACCELERATION==ret) {
         av_log(avctx, AV_LOG_WARNING, "Encoder will work with partial HW acceleration\n");
     } else if (ret < 0) {
-        av_log(avctx, AV_LOG_ERROR, "Error initializing the encoder\n");
+        av_log(avctx, AV_LOG_ERROR, "Error initializing the encoder :%d\n", ret);
         return ff_qsv_error(ret);
     }
 

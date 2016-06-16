@@ -43,7 +43,7 @@
 #include "avcodec.h"
 
 #define QSV_VERSION_MAJOR 1
-#define QSV_VERSION_MINOR 9
+#define QSV_VERSION_MINOR 4   //9  to be compatible with old PC by James
 
 #define ASYNC_DEPTH_DEFAULT 4       // internal parallelism
 

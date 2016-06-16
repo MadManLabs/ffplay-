@@ -111,8 +111,9 @@ typedef unsigned long nfds_t;
 #if HAVE_WINSOCK2_H
 #include <winsock2.h>
 #endif
-#if !HAVE_STRUCT_POLLFD
-struct pollfd {
+#if !HAVE_STRUCT_POLLFD 
+
+struct pollfd{
     int fd;
     short events;  /* events to look for */
     short revents; /* events that occurred */
